@@ -1,0 +1,24 @@
+---
+# defaults file for create_vsphere_vm
+
+vcenter_validate_certs: false
+vcenter_config_parent_folder: RTLab
+vcenter_config_cluster: Gen2
+vcenter_config_datastore: '2TB_SSD_WDRed'
+vcenter_config_template: rhel8-base-oct22
+vm_vars: |-
+  - name: aap-controller-test
+    cpu: 2
+    mem: 8
+  - name: aap-hub-test
+    cpu: 2
+    mem: 8
+  - name: aap-db-test
+    cpu: 2
+    mem: 8
+
+create_vsphere_vm_custom_spec_name: "RHEL8"
+create_vsphere_vm_guest_os: RHEL_8_64
+create_vsphere_vm_state: clone
+create_vsphere_vm_power_on: true
+create_vsphere_vm_create_from_template: false

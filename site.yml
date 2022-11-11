@@ -1,0 +1,9 @@
+---
+- name: Sample playbook to execute create_vsphere_vm role
+  hosts: localhost
+  connection: local
+  tasks:
+
+  - name: Call create_vsphere_vm role
+    ansible.builtin.include_role:
+      name: create_vsphere_vm
