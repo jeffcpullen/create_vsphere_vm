@@ -1,12 +1,13 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+This role deploys virtual machines to a vsphere environment from templates in a content library.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+A content library must exist in the vmware environment to pull "golden images" from. This blog provides an overview of the creation of a content library https://blogs.vmware.com/vsphere/2020/01/creating-and-using-content-library.html
+
 
 Role Variables
 --------------
