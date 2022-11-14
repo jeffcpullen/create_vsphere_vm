@@ -21,4 +21,4 @@ create_vsphere_vm_custom_spec_name: "RHEL8"
 create_vsphere_vm_guest_os: RHEL_8_64
 create_vsphere_vm_state: clone
 create_vsphere_vm_power_on: true
-create_vsphere_vm_create_from_template: false
+create_vsphere_vm_create_from_template: true

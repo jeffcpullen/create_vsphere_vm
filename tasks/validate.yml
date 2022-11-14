@@ -1,0 +1,21 @@
+---
+
+- name: Validate that required variables are provided
+  ansible.builtin.assert:
+    that:
+      - vcenter_hostname is defined
+      - vcenter_password is defined
+      - vcenter_username is defined
+
+- name: Validate python libraries
+  community.general.python_requirements_info:
+    dependencies:
+      - aiohttp>=3.8
+  register: python_libraries_available
+  failed_when:
+    - ( python_libraries_available.not_found is defined and python_libraries_available.not_found|length > 0 )
+      or (python_libraries_available.mismatched is defined and python_libraries_available.mismatched|length > 0)
+
+- name: Debug python libraries
+  ansible.builtin.debug:
+    var: python_libraries_available

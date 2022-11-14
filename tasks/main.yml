@@ -1,26 +1,6 @@
 ---
 # tasks file for create_vsphere_vm
 
-- name: Validate that required variables are provided
-  ansible.builtin.assert:
-    that:
-      - vcenter_hostname is defined
-      - vcenter_password is defined
-      - vcenter_username is defined
-
-- name: Validate python libraries
-  community.general.python_requirements_info:
-    dependencies:
-      - aiohttp>=3.8
-  register: python_libraries_available
-  failed_when:
-    - ( python_libraries_available.not_found is defined and python_libraries_available.not_found|length > 0 )
-      or (python_libraries_available.mismatched is defined and python_libraries_available.mismatched|length > 0)
-
-- name: Debug python libraries
-  ansible.builtin.debug:
-    var: python_libraries_available
-
 - name: Gather vmware Cluster id
   vmware.vmware_rest.vcenter_cluster_info:
     vcenter_hostname: "{{ vcenter_hostname }}"
@@ -47,49 +27,6 @@
       - datastore_id.value | length > 0
     fail_msg: "Datastore not found"
     success_msg: "Datastore information retrieved"
-
-- name: Gather information for deploying a VM from a Template
-  when: create_vsphere_vm_create_from_template
-  block:
-
-    - name: List all Local Content Library
-      vmware.vmware_rest.content_locallibrary_info:
-        vcenter_hostname: "{{ vcenter_hostname }}"
-        vcenter_password: "{{ vcenter_password }}"
-        vcenter_username: "{{ vcenter_username }}"
-        vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-      register: all_content_libraries
-
-    - name: Debug all_content_libraries
-      ansible.builtin.debug:
-        var: all_content_libraries
-
-    # - name: Use the name to identify the right Content Library
-    #   ansible.builtin.set_fact:
-    #     nfs_lib: "{{ all_content_libraries.value | selectattr('name', 'equalto', 'my_library_on_nfs')|first }}"
-
-    # - name: Get the list of items in the storage library
-    #   vmware.vmware_rest.content_library_item_info:
-    #     library_id:
-
-    # vmware.vmware_rest.vcenter_vm_info:
-    - name: Gather Template VM id
-      vmware.vmware_rest.vcenter_vmtemplate_libraryitems_info:
-        vcenter_hostname: "{{ vcenter_hostname }}"
-        vcenter_password: "{{ vcenter_password }}"
-        vcenter_username: "{{ vcenter_username }}"
-        vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-        template_library_item: "{{ vcenter_config_template }}"
-        # filter_names:
-        #   - "{{ vcenter_config_template }}"
-      register: template_vm
-
-    - name: Assert that Template VM was found
-      ansible.builtin.assert:
-        that:
-          - template_vm.value | length > 0
-        fail_msg: "Template VM '{{ vcenter_config_template }}' not found"
-        success_msg: "Template VM '{{ vcenter_config_template }}' information retrieved"
 
 - name: Set a fact for the vm_folder from variables
   ansible.builtin.set_fact:
@@ -122,29 +59,6 @@
 - name: Debug existing_vms variable
   ansible.builtin.debug:
     var: existing_vms
-
-- name: List VM templates
-  vmware.vmware_rest.vcenter_vmtemplate_libraryitems_info:
-    vcenter_hostname: "{{ vcenter_hostname }}"
-    vcenter_password: "{{ vcenter_password }}"
-    vcenter_username: "{{ vcenter_username }}"
-    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-    template_library_item: "*"
-  register: existing_templates
-
-- name: Debug existing_templates variable
-  ansible.builtin.debug:
-    var: existing_templates
-
-#########################
-# Content Library Section
-- name: List all Local Content Library
-  vmware.vmware_rest.content_locallibrary_info:
-    vcenter_hostname: "{{ vcenter_hostname }}"
-    vcenter_password: "{{ vcenter_password }}"
-    vcenter_username: "{{ vcenter_username }}"
-    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-  register: all_content_libraries
 
 - name: Debug all_content_libraries variable
   ansible.builtin.debug:
