@@ -1,0 +1,38 @@
+---
+
+- name: Build a list of all the folders
+  vmware.vmware_rest.vcenter_folder_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+  register: _create_vsphere_vm_all_folders
+
+- name: Show all folders
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_all_folders
+  when: create_vsphere_vm_debug
+
+- name: Gather folder information
+  vmware.vmware_rest.vcenter_folder_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    filter_names:
+      - "{{ create_vsphere_vm_folder | replace(' ', '%20') }}"
+  register: _create_vsphere_vm_folder
+
+- name: Show all folders
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_folder
+  when: create_vsphere_vm_debug
+
+- name: Set Folder fact vm_folder
+  ansible.builtin.set_fact:
+    vm_folder: "{{ _create_vsphere_vm_folder.value[0].folder }}"
+
+- name: Debug fact set in Folder gathering
+  ansible.builtin.debug:
+    var: vm_folder
+  when: create_vsphere_vm_debug

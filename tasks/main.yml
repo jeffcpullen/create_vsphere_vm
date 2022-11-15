@@ -1,132 +1,70 @@
 ---
 
-- name: set connection info
-  ansible.builtin.set_fact:
-    connection_args:
-      vcenter_hostname: "{{ vcenter_hostname }}"
-      vcenter_username: "{{ vcenter_username }}"
-      vcenter_password: "{{ vcenter_password }}"
-      vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+- name: Validate pre-reqs available
+  ansible.builtin.include_tasks:
+    file: validate.yml
 
-- name: List datacenters
-  vmware.vmware_rest.vcenter_datacenter_info:
-    vcenter_hostname: "{{ vcenter_hostname }}"
-    vcenter_password: "{{ vcenter_password }}"
-    vcenter_username: "{{ vcenter_username }}"
-    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-    filter_names:
-      # Replace blank spaces with %20
-      - "{{ create_vsphere_vm_datacenter | replace(' ', '%20') }}"
-  register: _create_vsphere_vm_datacenter
+- name: Import Datacenter REST query
+  ansible.builtin.include_tasks:
+    file: set_dc.yml
 
-- name: Debug datacenter info
+- name: Import Cluster REST query
+  ansible.builtin.include_tasks:
+    file: set_cluster.yml
+
+- name: Import Datastore REST query
+  ansible.builtin.include_tasks:
+    file: set_ds.yml
+
+- name: Import Folder REST query
+  ansible.builtin.include_tasks:
+    file: set_folder.yml
+
+- name: List relevant facts gathered
   ansible.builtin.debug:
-    var: _create_vsphere_vm_datacenter
+    msg:
+      - "Datacenter = '{{ vm_datacenter }}'"
+      - "Cluster Name = '{{ vm_cluster }}'"
+      - "Resource Pool = '{{ vm_cluster_resource_pool }}'"
+      - "Datastore = '{{ vm_datastore }}'"
+      - "Folder = '{{ vm_folder }}'"
 
-- name: Build a list of all the clusters
-  vmware.vmware_rest.vcenter_cluster_info:
-    vcenter_hostname: "{{ vcenter_hostname }}"
-    vcenter_password: "{{ vcenter_password }}"
-    vcenter_username: "{{ vcenter_username }}"
-    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-  register: _create_vsphere_vm_all_clusters
+# - name: Debug vm_cluster
+#   ansible.builtin.debug:
+#     var: vm_cluster
 
-- name: Debug all the clusters info
-  ansible.builtin.debug:
-    var: _create_vsphere_vm_all_clusters
+# - name: Debug vm_datastore
+#   ansible.builtin.debug:
+#     var: vm_datastore
 
-- name: Gather vmware Cluster id
-  vmware.vmware_rest.vcenter_cluster_info:
-    vcenter_hostname: "{{ vcenter_hostname }}"
-    vcenter_password: "{{ vcenter_password }}"
-    vcenter_username: "{{ vcenter_username }}"
-    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-    filter_names:
-      - "{{ create_vsphere_vm_cluster | replace(' ', '%20') }}"
-  register: _create_vsphere_vm_my_cluster
+# - name: Debug vm_folder
+#   ansible.builtin.debug:
+#     var: vm_folder
 
-- name: Show my_cluster_info
-  ansible.builtin.debug:
-    var: _create_vsphere_vm_my_cluster
-
-- name: Gather vmware Cluster id
-  vmware.vmware_rest.vcenter_cluster_info:
-    vcenter_hostname: "{{ vcenter_hostname }}"
-    vcenter_password: "{{ vcenter_password }}"
-    vcenter_username: "{{ vcenter_username }}"
-    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-    cluster: "{{ _create_vsphere_vm_my_cluster.value[0].cluster }}"
-  register: _create_vsphere_vm_my_cluster_info
-
-- name: Debug _create_vsphere_vm_my_cluster_info
-  ansible.builtin.debug:
-    var: _create_vsphere_vm_my_cluster_info
-
-- name: Retrieve a list of all the datastores
-  vmware.vmware_rest.vcenter_datastore_info:
-    vcenter_hostname: "{{ vcenter_hostname }}"
-    vcenter_password: "{{ vcenter_password }}"
-    vcenter_username: "{{ vcenter_username }}"
-    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-  register: _create_vsphere_vm_all_datastores
-
-- name: Show my_datastores
-  ansible.builtin.debug:
-    var: _create_vsphere_vm_all_datastores
-
-- name: Build a list of all the folders
-  vmware.vmware_rest.vcenter_folder_info:
-    vcenter_hostname: "{{ vcenter_hostname }}"
-    vcenter_password: "{{ vcenter_password }}"
-    vcenter_username: "{{ vcenter_username }}"
-    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-  register: _create_vsphere_vm_all_folders
-
-- name: Show all folders
-  ansible.builtin.debug:
-    var: _create_vsphere_vm_all_folders
-
-- name: Gather folder information
-  vmware.vmware_rest.vcenter_folder_info:
-    vcenter_hostname: "{{ vcenter_hostname }}"
-    vcenter_password: "{{ vcenter_password }}"
-    vcenter_username: "{{ vcenter_username }}"
-    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-    filter_names:
-      - "{{ create_vsphere_vm_folder | replace(' ', '%20') }}"
-  register: _create_vsphere_vm_folder
-
-- name: Show all folders
-  ansible.builtin.debug:
-    var: _create_vsphere_vm_folder
-
-- name: Debug _create_vsphere_vm_my_cluster.id
-  ansible.builtin.debug:
-    var: _create_vsphere_vm_my_cluster.id
-
-- name: Debug _create_vsphere_vm_datacenter.datastore
-  ansible.builtin.debug:
-    var: _create_vsphere_vm_datacenter.datastore
-
-- name: Debug _create_vsphere_vm_folder.folder
-  ansible.builtin.debug:
-    var: _create_vsphere_vm_folder.folder
-
-- name: _create_vsphere_vm_my_cluster_info.value.resource_pool
-  ansible.builtin.debug:
-    var: _create_vsphere_vm_my_cluster_info.value.resource_pool
+# - name: Debug vm_cluster_resource_pool
+#   ansible.builtin.debug:
+#     var: vm_cluster_resource_pool
 
 - name: Create a VM
   vmware.vmware_rest.vcenter_vm:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
     placement:
-      cluster: "{{ _create_vsphere_vm_my_cluster.id }}"
-      datastore: "{{ _create_vsphere_vm_datacenter.datastore }}"
-      folder: "{{ _create_vsphere_vm_folder.folder }}"
-      resource_pool: "{{ _create_vsphere_vm_my_cluster_info.value.resource_pool }}"
-    name: test_vm1
-    guest_OS: DEBIAN_8_64
-    hardware_version: VMX_11
+      cluster: "{{ vm_cluster }}"
+      datastore: "{{ vm_datastore }}"
+      folder: "{{ vm_folder }}"
+      resource_pool: "{{ vm_cluster_resource_pool }}"
+    name: "{{ create_vsphere_vm_name }}"
+    guest_OS: "{{ create_vsphere_vm_guest_os }}"
+    hardware_version: "{{ create_vsphere_vm_hardware_version }}"
     memory:
-      hot_add_enabled: true
-      size_MiB: 1024
+      hot_add_enabled: "{{ create_vsphere_vm_memory_hot_add_enabled }}"
+      size_MiB: "{{ create_vsphere_vm_memory_size_mib }}"
   register: _result
+
+- name: Debug _result
+  ansible.builtin.debug:
+    var: _result
+  when: create_vsphere_vm_debug

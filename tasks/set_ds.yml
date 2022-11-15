@@ -1,0 +1,38 @@
+---
+
+- name: Retrieve a list of all the datastores
+  vmware.vmware_rest.vcenter_datastore_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+  register: _create_vsphere_vm_all_datastores
+
+- name: Show my_datastores
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_all_datastores
+  when: create_vsphere_vm_debug
+
+- name: Retrieve a list of all the datastores
+  vmware.vmware_rest.vcenter_datastore_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    filter_names:
+      - "{{ create_vsphere_vm_datastore | replace(' ', '%20') }}"
+  register: _create_vsphere_vm_my_datastore
+
+- name: Show my_datastores
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_my_datastore
+  when: create_vsphere_vm_debug
+
+- name: Set Cluster fact vm_datastore
+  ansible.builtin.set_fact:
+    vm_datastore: "{{ _create_vsphere_vm_my_datastore.value[0].datastore }}"
+
+- name: Debug fact set in Datastore gathering
+  ansible.builtin.debug:
+    var: vm_datastore
+  when: create_vsphere_vm_debug

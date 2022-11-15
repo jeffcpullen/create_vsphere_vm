@@ -1,14 +1,30 @@
 ---
 # defaults file for create_vsphere_vm
 
-vcenter_validate_certs: false
-#vcenter_config_parent_folder: RTLab
-create_vsphere_vm_folder: "LabVMs"
+# vSphere Environment Setup
 create_vsphere_vm_datacenter: "Homelab DC"
 create_vsphere_vm_cluster: Gen2
 create_vsphere_vm_datastore: '2TB_SSD_WDRed'
-create_vsphere_vm_template: 'rhel8-base'
+create_vsphere_vm_folder: "LabVMs"
 create_vsphere_vm_library: 'golden_images_library'
+vcenter_validate_certs: false
+
+# Virtual Machine Settings
+create_vsphere_vm_name: TESTVM
+create_vsphere_vm_guest_os: RHEL_8_64
+create_vsphere_vm_hardware_version: "VMX_15"
+create_vsphere_vm_memory_hot_add_enabled: true
+create_vsphere_vm_memory_size_mib: '1024'
+
+# Ansible Settings
+create_vsphere_vm_debug: false
+
+# Unused Variables
+create_vsphere_vm_state: deploy
+create_vsphere_vm_power_on: true
+create_vsphere_vm_create_from_template: true
+create_vsphere_vm_template: 'rhel8-base'
+create_vsphere_vm_custom_spec_name: "RHEL8"
 vm_vars: |-
   - name: aap-controller-test
     cpu: 2
@@ -19,10 +35,3 @@ vm_vars: |-
   - name: aap-db-test
     cpu: 2
     mem: 8
-
-create_vsphere_vm_custom_spec_name: "RHEL8"
-create_vsphere_vm_guest_os: RHEL_8_64
-# create_vsphere_vm_state: clone
-create_vsphere_vm_state: deploy
-create_vsphere_vm_power_on: true
-create_vsphere_vm_create_from_template: true
