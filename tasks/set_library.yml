@@ -1,0 +1,29 @@
+---
+
+- name: List all Local Content Library
+  vmware.vmware_rest.content_locallibrary_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+  register: _create_vsphere_all_local_content_libraries
+
+- name: Debug all_content_libraries
+  ansible.builtin.debug:
+    var: _create_vsphere_all_local_content_libraries
+
+- name: Convert to local library list to dictionary
+  ansible.builtin.set_fact:
+    _create_vsphere_all_local_content_libraries_dict: "{{ _create_vsphere_all_local_content_libraries.value | items2dict(key_name='name', value_name='id') }}"
+
+- name: Debug _create_vsphere_all_local_content_libraries_dict
+  ansible.builtin.debug:
+    var: _create_vsphere_all_local_content_libraries_dict
+
+- name: Set library id value
+  ansible.builtin.set_fact:
+    create_vsphere_content_library_id: "{{ _create_vsphere_all_local_content_libraries_dict[create_vsphere_vm_library] }}"
+
+- name: Debug create_vsphere_content_library_id
+  ansible.builtin.debug:
+    var: create_vsphere_content_library_id

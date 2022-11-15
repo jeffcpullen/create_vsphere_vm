@@ -1,0 +1,76 @@
+---
+
+- name: Get the list of items of the NFS library
+  vmware.vmware_rest.content_library_item_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    library_id: '{{ create_vsphere_content_library_id }}'
+  register: _create_vsphere_vm_library_item_list
+
+- name: Debug vsphere library item list
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_library_item_list
+
+- name: Convert to local library item list to dictionary
+  ansible.builtin.set_fact:
+    _create_vsphere_vm_library_item_dict: "{{ _create_vsphere_vm_library_item_list.value | items2dict(key_name='name', value_name='id') }}"
+
+- name: Debug _create_vsphere_all_local_content_libraries_dict
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_library_item_dict
+
+- name: Set library id value
+  ansible.builtin.set_fact:
+    create_vsphere_vm_content_library_item_id: "{{ _create_vsphere_vm_library_item_dict[create_vsphere_vm_template] }}"
+
+- name: Debug create_vsphere_vm_content_library_item_id
+  ansible.builtin.debug:
+    var: create_vsphere_vm_content_library_item_id
+
+# # vmware.vmware_rest.vcenter_vm_info:
+# - name: Gather Template VM id
+#   vmware.vmware_rest.vcenter_vmtemplate_libraryitems_info:
+#     vcenter_hostname: "{{ vcenter_hostname }}"
+#     vcenter_password: "{{ vcenter_password }}"
+#     vcenter_username: "{{ vcenter_username }}"
+#     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+#     template_library_item: "{{ create_vsphere_content_library_item_id }}"
+#     # filter_names:
+#     #   - "{{ vcenter_config_template }}"
+#   register: _create_vsphere_libraryitems
+
+# - name: Debug _create_vsphere_libraryitems
+#   ansible.builtin.debug:
+#     var: _create_vsphere_libraryitems
+
+# - name: Assert that Template VM was found
+#   ansible.builtin.assert:
+#     that:
+#       - template_vm.value | length > 0
+#     fail_msg: "Template VM '{{ vcenter_config_template }}' not found"
+#     success_msg: "Template VM '{{ vcenter_config_template }}' information retrieved"
+
+# - name: List VM templates
+#   vmware.vmware_rest.vcenter_vmtemplate_libraryitems_info:
+#     vcenter_hostname: "{{ vcenter_hostname }}"
+#     vcenter_password: "{{ vcenter_password }}"
+#     vcenter_username: "{{ vcenter_username }}"
+#     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+#     template_library_item: "*"
+#   register: existing_templates
+
+# - name: Debug existing_templates variable
+#   ansible.builtin.debug:
+#     var: existing_templates
+
+# #########################
+# # Content Library Section
+# - name: List all Local Content Library
+#   vmware.vmware_rest.content_locallibrary_info:
+#     vcenter_hostname: "{{ vcenter_hostname }}"
+#     vcenter_password: "{{ vcenter_password }}"
+#     vcenter_username: "{{ vcenter_username }}"
+#     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+#   register: all_content_libraries

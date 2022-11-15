@@ -44,18 +44,18 @@
 
 - name: Set Cluster fact vm_cluster
   ansible.builtin.set_fact:
-    vm_cluster: "{{ _create_vsphere_vm_my_cluster_info.id }}"
+    create_vsphere_vm_cluster: "{{ _create_vsphere_vm_my_cluster_info.id }}"
 
 - name: Set Cluster fact vm_cluster_resource_pool
   ansible.builtin.set_fact:
-    vm_cluster_resource_pool: "{{ _create_vsphere_vm_my_cluster_info.value.resource_pool }}"
+    create_vsphere_vm_cluster_resource_pool: "{{ _create_vsphere_vm_my_cluster_info.value.resource_pool }}"
 
 - name: Debug fact set in cluster name gathering
   ansible.builtin.debug:
-    var: vm_cluster
+    var: create_vsphere_vm_cluster
   when: create_vsphere_vm_debug
 
 - name: Debug fact set in cluster resource gathering
   ansible.builtin.debug:
-    var: vm_cluster_resource_pool
+    var: create_vsphere_vm_cluster_resource_pool
   when: create_vsphere_vm_debug

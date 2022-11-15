@@ -30,9 +30,9 @@
 
 - name: Set Folder fact vm_folder
   ansible.builtin.set_fact:
-    vm_folder: "{{ _create_vsphere_vm_folder.value[0].folder }}"
+    create_vsphere_vm_folder: "{{ _create_vsphere_vm_folder.value[0].folder }}"
 
 - name: Debug fact set in Folder gathering
   ansible.builtin.debug:
-    var: vm_folder
+    var: create_vsphere_vm_folder
   when: create_vsphere_vm_debug

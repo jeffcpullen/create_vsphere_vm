@@ -1,5 +1,16 @@
 ---
 
+- name: Import Library REST query
+  ansible.builtin.include_tasks:
+    file: set_library.yml
+
+- name: Import Library Item REST query
+  ansible.builtin.include_tasks:
+    file: set_library_item.yml
+
+- name: Pause for debugging
+  ansible.builtin.pause:
+
 - name: Validate pre-reqs available
   ansible.builtin.include_tasks:
     file: validate.yml
@@ -23,11 +34,11 @@
 - name: List relevant facts gathered
   ansible.builtin.debug:
     msg:
-      - "Datacenter = '{{ vm_datacenter }}'"
-      - "Cluster Name = '{{ vm_cluster }}'"
-      - "Resource Pool = '{{ vm_cluster_resource_pool }}'"
-      - "Datastore = '{{ vm_datastore }}'"
-      - "Folder = '{{ vm_folder }}'"
+      - "Datacenter = '{{ create_vsphere_vm_datacenter }}'"
+      - "Cluster Name = '{{ create_vsphere_vm_cluster }}'"
+      - "Resource Pool = '{{ create_vsphere_vm_cluster_resource_pool }}'"
+      - "Datastore = '{{ create_vsphere_vm_datastore }}'"
+      - "Folder = '{{ create_vsphere_vm_folder }}'"
 
 # - name: Debug vm_cluster
 #   ansible.builtin.debug:
@@ -52,10 +63,10 @@
     vcenter_password: "{{ vcenter_password }}"
     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
     placement:
-      cluster: "{{ vm_cluster }}"
-      datastore: "{{ vm_datastore }}"
-      folder: "{{ vm_folder }}"
-      resource_pool: "{{ vm_cluster_resource_pool }}"
+      cluster: "{{ create_vsphere_vm_cluster }}"
+      datastore: "{{ create_vsphere_vm_datastore }}"
+      folder: "{{ create_vsphere_vm_folder }}"
+      resource_pool: "{{ create_vsphere_vm_cluster_resource_pool }}"
     name: "{{ create_vsphere_vm_name }}"
     guest_OS: "{{ create_vsphere_vm_guest_os }}"
     hardware_version: "{{ create_vsphere_vm_hardware_version }}"
