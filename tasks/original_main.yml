@@ -1,0 +1,130 @@
+---
+# tasks file for create_vsphere_vm
+
+- name: Gather vmware Cluster id
+  vmware.vmware_rest.vcenter_cluster_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    filter_names:
+      - "{{ vcenter_config_cluster }}"
+  register: cluster_id
+
+- name: Gather vmware Datastore id
+  vmware.vmware_rest.vcenter_datastore_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    filter_names:
+      - "{{ vcenter_config_datastore }}"
+  register: datastore_id
+
+- name: Assert that datastore was found
+  ansible.builtin.assert:
+    that:
+      - datastore_id.value | length > 0
+    fail_msg: "Datastore not found"
+    success_msg: "Datastore information retrieved"
+
+- name: Debug datastore_id.value variable
+  ansible.builtin.debug:
+    var: datastore_id
+
+- name: Debug datastore_id.value variable
+  ansible.builtin.debug:
+    msg: "{{ datastore_id['value'][0]['name'] }}"
+
+- name: Break for debug
+  ansible.builtin.pause:
+
+- name: Set a fact for the vm_folder from variables
+  ansible.builtin.set_fact:
+    vm_folder: "{{ vcenter_config_parent_folder }}"
+
+- name: Gather Folder id
+  vmware.vmware_rest.vcenter_folder_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    # filter_names:
+    #  - "{{ vcenter_config_parent_folder }}"
+  register: vm_folder_id
+  # when: vcenter_config_parent_folder is defined
+
+- name: Debug vm_folder_id variable
+  ansible.builtin.debug:
+    var: vm_folder_id
+
+- name: Collect the list of the existing VM
+  vmware.vmware_rest.vcenter_vm_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+  register: existing_vms
+  until: existing_vms is not failed
+
+- name: Debug existing_vms variable
+  ansible.builtin.debug:
+    var: existing_vms
+
+- name: Debug all_content_libraries variable
+  ansible.builtin.debug:
+    var: all_content_libraries
+
+# END Content Library Section
+
+- name: Create all VMs
+  vmware.vmware_rest.vcenter_vmtemplate_libraryitems:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    placement:
+      cluster: "{{ cluster_id.value[0].cluster }}"
+      # folder: "{% if vcenter_config_parent_folder %}{{ vm_folder_id.value[0].folder }}{% else %}{{ omit }}{% endif %}"
+      datastore: "2TB_SSD_WDRed"
+      # datastore: "{{ datastore_id['value'][0]['name'] }}"
+    template_library_item: "{{ vcenter_config_template }}"
+    library: "{{ vcenter_config_library }}"
+    # memory:
+      # size_MiB: "{{ item.mem * 1024 | int }}"
+    # cpu:
+      # count: "{{ item.cpu | int }}"
+    # guest_customization_spec:
+      # name: "{{ create_vsphere_vm_custom_spec_name }}"
+    # guest_OS: "{{ create_vsphere_vm_guest_os }}"
+    name: "{{ item.name }}"
+    state: "{{ create_vsphere_vm_state }}"
+    powered_on: "{{ create_vsphere_vm_power_on }}"
+  loop: "{{ vm_vars | from_yaml }}"
+
+
+# - name: Create all VMs
+#   vmware.vmware_rest.vcenter_vm:
+#     vcenter_hostname: "{{ vcenter_hostname }}"
+#     vcenter_password: "{{ vcenter_password }}"
+#     vcenter_username: "{{ vcenter_username }}"
+#     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+#     placement:
+#       cluster: "{{ cluster_id.value[0].cluster }}"
+#       # folder: "{% if vcenter_config_parent_folder %}{{ vm_folder_id.value[0].folder }}{% else %}{{ omit }}{% endif %}"
+#       datastore: "{{ datastore_id.value[0].datastore }}"
+#     # source: "{{ template_vm.value[0].vm }}"
+#     # source: "{{ vcenter_config_template }}"
+#     template_library_item: "{{ vcenter_config_template }}"
+#     library: "{{ vcenter_config_library }}"
+#     memory:
+#       size_MiB: "{{ item.mem * 1024 | int }}"
+#     cpu:
+#       count: "{{ item.cpu | int }}"
+#     guest_customization_spec:
+#       name: "{{ create_vsphere_vm_custom_spec_name }}"
+#     guest_OS: "{{ create_vsphere_vm_guest_os }}"
+#     name: "{{ item.name }}"
+#     state: "{{ create_vsphere_vm_state }}"
+#     power_on: "{{ create_vsphere_vm_power_on }}"
+#   loop: "{{ vm_vars | from_yaml }}"

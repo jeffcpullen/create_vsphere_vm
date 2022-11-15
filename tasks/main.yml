@@ -1,5 +1,39 @@
 ---
-# tasks file for create_vsphere_vm
+
+- name: set connection info
+  ansible.builtin.set_fact:
+    connection_args:
+      vcenter_hostname: "{{ vcenter_hostname }}"
+      vcenter_username: "{{ vcenter_username }}"
+      vcenter_password: "{{ vcenter_password }}"
+      vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+
+- name: List datacenters
+  vmware.vmware_rest.vcenter_datacenter_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    filter_names:
+      # Replace blank spaces with %20
+      - "{{ create_vsphere_vm_datacenter | replace(' ', '%20') }}"
+  register: _create_vsphere_vm_datacenter
+
+- name: Debug datacenter info
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_datacenter
+
+- name: Build a list of all the clusters
+  vmware.vmware_rest.vcenter_cluster_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+  register: _create_vsphere_vm_all_clusters
+
+- name: Debug all the clusters info
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_all_clusters
 
 - name: Gather vmware Cluster id
   vmware.vmware_rest.vcenter_cluster_info:
@@ -8,84 +42,91 @@
     vcenter_username: "{{ vcenter_username }}"
     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
     filter_names:
-      - "{{ vcenter_config_cluster }}"
-  register: cluster_id
+      - "{{ create_vsphere_vm_cluster | replace(' ', '%20') }}"
+  register: _create_vsphere_vm_my_cluster
 
-- name: Gather vmware Datastore id
+- name: Show my_cluster_info
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_my_cluster
+
+- name: Gather vmware Cluster id
+  vmware.vmware_rest.vcenter_cluster_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    cluster: "{{ _create_vsphere_vm_my_cluster.value[0].cluster }}"
+  register: _create_vsphere_vm_my_cluster_info
+
+- name: Debug _create_vsphere_vm_my_cluster_info
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_my_cluster_info
+
+- name: Retrieve a list of all the datastores
   vmware.vmware_rest.vcenter_datastore_info:
     vcenter_hostname: "{{ vcenter_hostname }}"
     vcenter_password: "{{ vcenter_password }}"
     vcenter_username: "{{ vcenter_username }}"
     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-    filter_names:
-      - "{{ vcenter_config_datastore }}"
-  register: datastore_id
+  register: _create_vsphere_vm_all_datastores
 
-- name: Assert that datastore was found
-  ansible.builtin.assert:
-    that:
-      - datastore_id.value | length > 0
-    fail_msg: "Datastore not found"
-    success_msg: "Datastore information retrieved"
+- name: Show my_datastores
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_all_datastores
 
-- name: Set a fact for the vm_folder from variables
-  ansible.builtin.set_fact:
-    vm_folder: "{{ vcenter_config_parent_folder }}"
-
-- name: Gather Folder id
+- name: Build a list of all the folders
   vmware.vmware_rest.vcenter_folder_info:
     vcenter_hostname: "{{ vcenter_hostname }}"
     vcenter_password: "{{ vcenter_password }}"
     vcenter_username: "{{ vcenter_username }}"
     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-    # filter_names:
-    #  - "{{ vcenter_config_parent_folder }}"
-  register: vm_folder_id
-  # when: vcenter_config_parent_folder is defined
+  register: _create_vsphere_vm_all_folders
 
-- name: Debug vm_folder_id variable
+- name: Show all folders
   ansible.builtin.debug:
-    var: vm_folder_id
+    var: _create_vsphere_vm_all_folders
 
-- name: Collect the list of the existing VM
-  vmware.vmware_rest.vcenter_vm_info:
+- name: Gather folder information
+  vmware.vmware_rest.vcenter_folder_info:
     vcenter_hostname: "{{ vcenter_hostname }}"
     vcenter_password: "{{ vcenter_password }}"
     vcenter_username: "{{ vcenter_username }}"
     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-  register: existing_vms
-  until: existing_vms is not failed
+    filter_names:
+      - "{{ create_vsphere_vm_folder | replace(' ', '%20') }}"
+  register: _create_vsphere_vm_folder
 
-- name: Debug existing_vms variable
+- name: Show all folders
   ansible.builtin.debug:
-    var: existing_vms
+    var: _create_vsphere_vm_folder
 
-- name: Debug all_content_libraries variable
+- name: Debug _create_vsphere_vm_my_cluster.id
   ansible.builtin.debug:
-    var: all_content_libraries
+    var: _create_vsphere_vm_my_cluster.id
 
-# END Content Library Section
+- name: Debug _create_vsphere_vm_datacenter.datastore
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_datacenter.datastore
 
-- name: Create all VMs
+- name: Debug _create_vsphere_vm_folder.folder
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_folder.folder
+
+- name: _create_vsphere_vm_my_cluster_info.value.resource_pool
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_my_cluster_info.value.resource_pool
+
+- name: Create a VM
   vmware.vmware_rest.vcenter_vm:
-    vcenter_hostname: "{{ vcenter_hostname }}"
-    vcenter_password: "{{ vcenter_password }}"
-    vcenter_username: "{{ vcenter_username }}"
-    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
     placement:
-      cluster: "{{ cluster_id.value[0].cluster }}"
-      # folder: "{% if vcenter_config_parent_folder %}{{ vm_folder_id.value[0].folder }}{% else %}{{ omit }}{% endif %}"
-      datastore: "{{ datastore_id.value[0].datastore }}"
-    # source: "{{ template_vm.value[0].vm }}"
-    source: "{{ vcenter_config_template }}"
+      cluster: "{{ _create_vsphere_vm_my_cluster.id }}"
+      datastore: "{{ _create_vsphere_vm_datacenter.datastore }}"
+      folder: "{{ _create_vsphere_vm_folder.folder }}"
+      resource_pool: "{{ _create_vsphere_vm_my_cluster_info.value.resource_pool }}"
+    name: test_vm1
+    guest_OS: DEBIAN_8_64
+    hardware_version: VMX_11
     memory:
-      size_MiB: "{{ item.mem * 1024 | int }}"
-    cpu:
-      count: "{{ item.cpu | int }}"
-    guest_customization_spec:
-      name: "{{ create_vsphere_vm_custom_spec_name }}"
-    guest_OS: "{{ create_vsphere_vm_guest_os }}"
-    name: "{{ item.name }}"
-    state: "{{ create_vsphere_vm_state }}"
-    power_on: "{{ create_vsphere_vm_power_on }}"
-  loop: "{{ vm_vars | from_yaml }}"
+      hot_add_enabled: true
+      size_MiB: 1024
+  register: _result

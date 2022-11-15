@@ -2,10 +2,13 @@
 # defaults file for create_vsphere_vm
 
 vcenter_validate_certs: false
-vcenter_config_parent_folder: RTLab
-vcenter_config_cluster: Gen2
-vcenter_config_datastore: '2TB_SSD_WDRed'
-vcenter_config_template: rhel8-base-oct22
+#vcenter_config_parent_folder: RTLab
+create_vsphere_vm_folder: "LabVMs"
+create_vsphere_vm_datacenter: "Homelab DC"
+create_vsphere_vm_cluster: Gen2
+create_vsphere_vm_datastore: '2TB_SSD_WDRed'
+create_vsphere_vm_template: 'rhel8-base'
+create_vsphere_vm_library: 'golden_images_library'
 vm_vars: |-
   - name: aap-controller-test
     cpu: 2
@@ -19,6 +22,7 @@ vm_vars: |-
 
 create_vsphere_vm_custom_spec_name: "RHEL8"
 create_vsphere_vm_guest_os: RHEL_8_64
-create_vsphere_vm_state: clone
+# create_vsphere_vm_state: clone
+create_vsphere_vm_state: deploy
 create_vsphere_vm_power_on: true
 create_vsphere_vm_create_from_template: true
