@@ -1,16 +1,5 @@
 ---
 
-- name: Import Library REST query
-  ansible.builtin.include_tasks:
-    file: set_library.yml
-
-- name: Import Library Item REST query
-  ansible.builtin.include_tasks:
-    file: set_library_item.yml
-
-- name: Pause for debugging
-  ansible.builtin.pause:
-
 - name: Validate pre-reqs available
   ansible.builtin.include_tasks:
     file: validate.yml
@@ -31,14 +20,49 @@
   ansible.builtin.include_tasks:
     file: set_folder.yml
 
+- name: Import Library REST query
+  ansible.builtin.include_tasks:
+    file: set_library.yml
+
+- name: Import Library Item REST query
+  ansible.builtin.include_tasks:
+    file: set_library_item.yml
+
 - name: List relevant facts gathered
+  vars:
+    msg: |
+         Datacenter = '{{ create_vsphere_vm_datacenter }}'
+         --------------------------
+         Cluster Name = '{{ create_vsphere_vm_cluster }}'
+         --------------------------
+         Resource Pool = '{{ create_vsphere_vm_cluster_resource_pool }}'
+         --------------------------
+         Datastore = '{{ create_vsphere_vm_datastore }}'
+         --------------------------
+         Folder = '{{ create_vsphere_vm_folder }}'
+         --------------------------
+         Library Item Details
+         {{ create_vsphere_vm_content_library_item | to_yaml }}
   ansible.builtin.debug:
-    msg:
-      - "Datacenter = '{{ create_vsphere_vm_datacenter }}'"
-      - "Cluster Name = '{{ create_vsphere_vm_cluster }}'"
-      - "Resource Pool = '{{ create_vsphere_vm_cluster_resource_pool }}'"
-      - "Datastore = '{{ create_vsphere_vm_datastore }}'"
-      - "Folder = '{{ create_vsphere_vm_folder }}'"
+    msg: "{{ msg.split('\n') }}"
+
+- name: Import deploy vm from template
+  ansible.builtin.include_tasks:
+    file: deploy_vm_from_template.yml
+  when: create_vsphere_vm_content_library_item.value.type == 'template'
+
+- name: Import deploy vm from ovf
+  ansible.builtin.include_tasks:
+    file: deploy_from_ovf.yml
+  when: ( create_vsphere_vm_content_library_item.value.type == 'ovf'
+          and not create_vsphere_vm_require_template )
+      or ( create_vsphere_vm_content_library_item.value.type == 'ova'
+          and not create_vsphere_vm_require_template)
+
+- name: Start Virtual Machine
+  ansible.builtin.include_tasks:
+    file: start_vm.yml
+  when: create_vsphere_vm_start_vm
 
 # - name: Debug vm_cluster
 #   ansible.builtin.debug:
@@ -56,26 +80,29 @@
 #   ansible.builtin.debug:
 #     var: vm_cluster_resource_pool
 
-- name: Create a VM
-  vmware.vmware_rest.vcenter_vm:
-    vcenter_hostname: "{{ vcenter_hostname }}"
-    vcenter_username: "{{ vcenter_username }}"
-    vcenter_password: "{{ vcenter_password }}"
-    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-    placement:
-      cluster: "{{ create_vsphere_vm_cluster }}"
-      datastore: "{{ create_vsphere_vm_datastore }}"
-      folder: "{{ create_vsphere_vm_folder }}"
-      resource_pool: "{{ create_vsphere_vm_cluster_resource_pool }}"
-    name: "{{ create_vsphere_vm_name }}"
-    guest_OS: "{{ create_vsphere_vm_guest_os }}"
-    hardware_version: "{{ create_vsphere_vm_hardware_version }}"
-    memory:
-      hot_add_enabled: "{{ create_vsphere_vm_memory_hot_add_enabled }}"
-      size_MiB: "{{ create_vsphere_vm_memory_size_mib }}"
-  register: _result
 
-- name: Debug _result
-  ansible.builtin.debug:
-    var: _result
-  when: create_vsphere_vm_debug
+# BEGIN: WORKS BUT NOT WITH TEMPLATES
+# - name: Create a VM
+#   vmware.vmware_rest.vcenter_vm:
+#     vcenter_hostname: "{{ vcenter_hostname }}"
+#     vcenter_username: "{{ vcenter_username }}"
+#     vcenter_password: "{{ vcenter_password }}"
+#     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+#     placement:
+#       cluster: "{{ create_vsphere_vm_cluster }}"
+#       datastore: "{{ create_vsphere_vm_datastore }}"
+#       folder: "{{ create_vsphere_vm_folder }}"
+#       resource_pool: "{{ create_vsphere_vm_cluster_resource_pool }}"
+#     name: "{{ create_vsphere_vm_name }}"
+#     guest_OS: "{{ create_vsphere_vm_guest_os }}"
+#     hardware_version: "{{ create_vsphere_vm_hardware_version }}"
+#     memory:
+#       hot_add_enabled: "{{ create_vsphere_vm_memory_hot_add_enabled }}"
+#       size_MiB: "{{ create_vsphere_vm_memory_size_mib }}"
+#   register: _result
+
+# - name: Debug _result
+#   ansible.builtin.debug:
+#     var: _result
+#   when: create_vsphere_vm_debug
+# END: WORKS BUT NOT WITH TEMPLATES

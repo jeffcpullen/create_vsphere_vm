@@ -1,0 +1,25 @@
+---
+
+- name: Create a new VM from the OVF
+  vmware.vmware_rest.vcenter_ovf_libraryitem:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    ovf_library_item_id: '{{ create_vsphere_vm_content_library_item_id }}'
+    # Not idempotent and state: present fails the module
+    state: deploy
+    target:
+      resource_pool_id: "{{ create_vsphere_vm_cluster_resource_pool }}"
+    deployment_spec:
+      name: "{{ create_vsphere_vm_name }}"
+      accept_all_EULA: true
+  register: _create_vsphere_vm_create_results
+
+- name: Debug _create_vsphere_vm_create_results
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_create_results
+
+- name: Set fact create_vsphere_vm_id
+  ansible.builtin.set_fact:
+    create_vsphere_vm_id: "{{ _create_vsphere_vm_create_results.value.resource_id.id }}"

@@ -1,0 +1,21 @@
+---
+
+- name: Deploy a new VM based on the template
+  vmware.vmware_rest.vcenter_vmtemplate_libraryitems:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    name: "{{ create_vsphere_vm_name }}"
+    library: '{{ create_vsphere_content_library_id }}'
+    template_library_item: '{{ create_vsphere_vm_content_library_item_id }}'
+    placement:
+      cluster: "{{ create_vsphere_vm_cluster }}"
+      folder: "{{ create_vsphere_vm_folder }}"
+      resource_pool: "{{ create_vsphere_vm_cluster_resource_pool }}"
+    state: deploy
+  register: _create_vsphere_vm_new_vm
+
+- name: Debug _create_vsphere_vm_new_vm
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_new_vm

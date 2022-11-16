@@ -12,6 +12,7 @@
 - name: Debug vsphere library item list
   ansible.builtin.debug:
     var: _create_vsphere_vm_library_item_list
+  when: create_vsphere_vm_debug
 
 - name: Convert to local library item list to dictionary
   ansible.builtin.set_fact:
@@ -20,6 +21,9 @@
 - name: Debug _create_vsphere_all_local_content_libraries_dict
   ansible.builtin.debug:
     var: _create_vsphere_vm_library_item_dict
+  when: create_vsphere_vm_debug
+
+# Note for the future ovf_library_item_id: '{{ (result.value|selectattr("name", "equalto", "my_vm")|first).id }}'
 
 - name: Set library id value
   ansible.builtin.set_fact:
@@ -28,6 +32,27 @@
 - name: Debug create_vsphere_vm_content_library_item_id
   ansible.builtin.debug:
     var: create_vsphere_vm_content_library_item_id
+  when: create_vsphere_vm_debug
+
+- name: Get the list of items of the NFS library
+  vmware.vmware_rest.content_library_item_info:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    library_id: '{{ create_vsphere_content_library_id }}'
+    library_item_id: "{{ create_vsphere_vm_content_library_item_id }}"
+  register: _create_vsphere_vm_library_item_details
+
+- name: Debug library item id details
+  ansible.builtin.debug:
+    var: _create_vsphere_vm_library_item_details
+  when: create_vsphere_vm_debug
+
+- name: Set library id value
+  ansible.builtin.set_fact:
+    create_vsphere_vm_content_library_item: "{{ _create_vsphere_vm_library_item_details }}"
+
 
 # # vmware.vmware_rest.vcenter_vm_info:
 # - name: Gather Template VM id

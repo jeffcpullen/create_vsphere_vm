@@ -1,0 +1,10 @@
+---
+
+- name: Turn the power of the VM on
+  vmware.vmware_rest.vcenter_vm_power:
+    vcenter_hostname: "{{ vcenter_hostname }}"
+    vcenter_password: "{{ vcenter_password }}"
+    vcenter_username: "{{ vcenter_username }}"
+    vcenter_validate_certs: "{{ vcenter_validate_certs }}"
+    state: start
+    vm: '{{ create_vsphere_vm_id }}'

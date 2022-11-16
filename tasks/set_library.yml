@@ -11,6 +11,7 @@
 - name: Debug all_content_libraries
   ansible.builtin.debug:
     var: _create_vsphere_all_local_content_libraries
+  when: create_vsphere_vm_debug
 
 - name: Convert to local library list to dictionary
   ansible.builtin.set_fact:
@@ -19,6 +20,7 @@
 - name: Debug _create_vsphere_all_local_content_libraries_dict
   ansible.builtin.debug:
     var: _create_vsphere_all_local_content_libraries_dict
+  when: create_vsphere_vm_debug
 
 - name: Set library id value
   ansible.builtin.set_fact:
@@ -27,3 +29,4 @@
 - name: Debug create_vsphere_content_library_id
   ansible.builtin.debug:
     var: create_vsphere_content_library_id
+  when: create_vsphere_vm_debug
