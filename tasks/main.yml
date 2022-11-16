@@ -49,7 +49,7 @@
 - name: Import deploy vm from template
   ansible.builtin.include_tasks:
     file: deploy_vm_from_template.yml
-  when: create_vsphere_vm_content_library_item.value.type == 'template'
+  when: create_vsphere_vm_content_library_item.value.type == 'vm-template'
 
 - name: Import deploy vm from ovf
   ansible.builtin.include_tasks:
