@@ -104,5 +104,5 @@
 # - name: Debug _result
 #   ansible.builtin.debug:
 #     var: _result
-#   when: create_vsphere_vm_debug
+#     verbosity: 2
 # END: WORKS BUT NOT WITH TEMPLATES

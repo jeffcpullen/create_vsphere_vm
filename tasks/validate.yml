@@ -19,4 +19,4 @@
 - name: Debug python libraries
   ansible.builtin.debug:
     var: _create_vsphere_python_libraries_available
-  when: create_vsphere_vm_debug
+    verbosity: 2

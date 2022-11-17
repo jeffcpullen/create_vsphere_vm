@@ -8,7 +8,7 @@
     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
     ovf_library_item_id: '{{ create_vsphere_vm_content_library_item_id }}'
     # Not idempotent and state: present fails the module
-    state: deploy
+    state: "{{ create_vsphere_vm_state }}"
     target:
       resource_pool_id: "{{ create_vsphere_vm_cluster_resource_pool }}"
     deployment_spec:

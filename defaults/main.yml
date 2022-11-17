@@ -23,7 +23,7 @@ create_vsphere_vm_debug: false
 create_vsphere_vm_require_template: false
 
 # Unused Variables
-# create_vsphere_vm_state: deploy
+create_vsphere_vm_state: deploy
 create_vsphere_vm_create_from_template: true
 create_vsphere_vm_template: 'rhel8-base'
 create_vsphere_vm_custom_spec_name: "RHEL8"

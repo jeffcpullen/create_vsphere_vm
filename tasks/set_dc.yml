@@ -1,5 +1,10 @@
 ---
 
+- name: Debug datacenter name
+  ansible.builtin.debug:
+    var: create_vsphere_vm_datacenter
+    verbosity: 2
+
 - name: List datacenters
   vmware.vmware_rest.vcenter_datacenter_info:
     vcenter_hostname: "{{ vcenter_hostname }}"
@@ -7,14 +12,14 @@
     vcenter_username: "{{ vcenter_username }}"
     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
     filter_names:
-      # Replace blank spaces with %20
-      - "{{ create_vsphere_vm_datacenter | replace(' ', '%20') }}"
+      # Replaces blank spaces with %20
+      - "{{ create_vsphere_vm_datacenter | urlencode }}"
   register: _create_vsphere_vm_datacenter
 
 - name: Debug datacenter info
   ansible.builtin.debug:
     var: _create_vsphere_vm_datacenter
-  when: create_vsphere_vm_debug
+    verbosity: 2
 
 - name: Set Datacenter fact
   ansible.builtin.set_fact:
@@ -23,4 +28,4 @@
 - name: Debug fact set in datacenter gathering
   ansible.builtin.debug:
     var: create_vsphere_vm_datacenter
-  when: create_vsphere_vm_debug
+    verbosity: 2

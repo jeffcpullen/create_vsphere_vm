@@ -14,7 +14,7 @@
       folder: "{{ create_vsphere_vm_folder }}"
       resource_pool: "{{ create_vsphere_vm_cluster_resource_pool }}"
     # Not idempotent will fail if already exists
-    state: deploy
+    state: "{{ create_vsphere_vm_state }}"
   register: _create_vsphere_vm_new_vm
 
 - name: Debug _create_vsphere_vm_new_vm

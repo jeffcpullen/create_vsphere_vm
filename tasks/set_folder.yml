@@ -11,7 +11,7 @@
 - name: Show all folders
   ansible.builtin.debug:
     var: _create_vsphere_vm_all_folders
-  when: create_vsphere_vm_debug
+    verbosity: 2
 
 - name: Gather folder information
   vmware.vmware_rest.vcenter_folder_info:
@@ -20,13 +20,13 @@
     vcenter_username: "{{ vcenter_username }}"
     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
     filter_names:
-      - "{{ create_vsphere_vm_folder | replace(' ', '%20') }}"
+      - "{{ create_vsphere_vm_folder | urlencode }}"
   register: _create_vsphere_vm_folder
 
 - name: Show all folders
   ansible.builtin.debug:
     var: _create_vsphere_vm_folder
-  when: create_vsphere_vm_debug
+    verbosity: 2
 
 - name: Set Folder fact vm_folder
   ansible.builtin.set_fact:
@@ -35,4 +35,4 @@
 - name: Debug fact set in Folder gathering
   ansible.builtin.debug:
     var: create_vsphere_vm_folder
-  when: create_vsphere_vm_debug
+    verbosity: 2

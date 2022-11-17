@@ -11,7 +11,7 @@
 - name: Show my_datastores
   ansible.builtin.debug:
     var: _create_vsphere_vm_all_datastores
-  when: create_vsphere_vm_debug
+    verbosity: 2
 
 - name: Retrieve a list of all the datastores
   vmware.vmware_rest.vcenter_datastore_info:
@@ -20,13 +20,13 @@
     vcenter_username: "{{ vcenter_username }}"
     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
     filter_names:
-      - "{{ create_vsphere_vm_datastore | replace(' ', '%20') }}"
+      - "{{ create_vsphere_vm_datastore | urlencode }}"
   register: _create_vsphere_vm_my_datastore
 
 - name: Show my_datastores
   ansible.builtin.debug:
     var: _create_vsphere_vm_my_datastore
-  when: create_vsphere_vm_debug
+    verbosity: 2
 
 - name: Set Cluster fact vm_datastore
   ansible.builtin.set_fact:
@@ -35,4 +35,4 @@
 - name: Debug fact set in Datastore gathering
   ansible.builtin.debug:
     var: create_vsphere_vm_datastore
-  when: create_vsphere_vm_debug
+    verbosity: 2
