@@ -5,5 +5,10 @@
   tasks:
 
   - name: Call create_vsphere_vm role
+    vars:
+      create_vsphere_vm_template: 'rhel8-base-template'
+      create_vsphere_vm_name: 'snaap.lab.homelab.work'
+      create_vsphere_vm_memory_size_mib: 8192
+      create_vsphere_vm_cpu_cores: 2
     ansible.builtin.include_role:
       name: create_vsphere_vm
