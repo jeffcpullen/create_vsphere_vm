@@ -6,25 +6,27 @@
     vcenter_password: "{{ vcenter_password }}"
     vcenter_username: "{{ vcenter_username }}"
     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-  register: _create_vsphere_all_local_content_libraries
+  register: _cval_library
 
 - name: Debug all_content_libraries
   ansible.builtin.debug:
-    var: _create_vsphere_all_local_content_libraries
+    var: _cval_library
     verbosity: 2
 
 - name: Convert to local library list to dictionary
   ansible.builtin.set_fact:
-    _create_vsphere_all_local_content_libraries_dict: "{{ _create_vsphere_all_local_content_libraries.value | items2dict(key_name='name', value_name='id') }}"
+    _cval_library_dict: >
+      "{{ _cval_library.value | items2dict(key_name='name', value_name='id') }}"
 
-- name: Debug _create_vsphere_all_local_content_libraries_dict
+- name: Debug _cval_library_dict
   ansible.builtin.debug:
-    var: _create_vsphere_all_local_content_libraries_dict
+    var: _cval_library_dict
     verbosity: 2
 
 - name: Set library id value
   ansible.builtin.set_fact:
-    create_vsphere_content_library_id: "{{ _create_vsphere_all_local_content_libraries_dict[create_vsphere_vm_library] }}"
+    create_vsphere_content_library_id: >
+      "{{ _cval_library_dict[create_vsphere_vm_library] }}"
 
 - name: Debug create_vsphere_content_library_id
   ansible.builtin.debug:

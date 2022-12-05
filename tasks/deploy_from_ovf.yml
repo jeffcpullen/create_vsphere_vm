@@ -22,4 +22,5 @@
 
 - name: Set fact create_vsphere_vm_id
   ansible.builtin.set_fact:
-    create_vsphere_vm_id: "{{ _create_vsphere_vm_create_results.value.resource_id.id }}"
+    create_vsphere_vm_id: >
+      "{{ _create_vsphere_vm_create_results.value.resource_id.id }}"

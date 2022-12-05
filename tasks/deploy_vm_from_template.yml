@@ -11,7 +11,7 @@
     template_library_item: '{{ create_vsphere_vm_content_library_item_id }}'
     placement:
       cluster: "{{ create_vsphere_vm_cluster }}"
-      folder: "{{ create_vsphere_vm_folder }}"
+      folder: "{{ create_vsphere_vm_folder | default(omit) }}"
       resource_pool: "{{ create_vsphere_vm_cluster_resource_pool }}"
     # Not idempotent will fail if already exists
     state: "{{ create_vsphere_vm_state }}"

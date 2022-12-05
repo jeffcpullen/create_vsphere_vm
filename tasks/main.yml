@@ -19,6 +19,7 @@
 - name: Import Folder REST query
   ansible.builtin.include_tasks:
     file: set_folder.yml
+  when: create_vsphere_vm_folder is defined
 
 - name: Import Library REST query
   ansible.builtin.include_tasks:
@@ -39,7 +40,7 @@
          --------------------------
          Datastore = '{{ create_vsphere_vm_datastore }}'
          --------------------------
-         Folder = '{{ create_vsphere_vm_folder }}'
+         Folder = '{{ create_vsphere_vm_folder | default(omit) }}'
          --------------------------
          Library Item Details
          {{ create_vsphere_vm_content_library_item | to_yaml }}
@@ -63,46 +64,3 @@
   ansible.builtin.include_tasks:
     file: start_vm.yml
   when: create_vsphere_vm_start_vm
-
-# - name: Debug vm_cluster
-#   ansible.builtin.debug:
-#     var: vm_cluster
-
-# - name: Debug vm_datastore
-#   ansible.builtin.debug:
-#     var: vm_datastore
-
-# - name: Debug vm_folder
-#   ansible.builtin.debug:
-#     var: vm_folder
-
-# - name: Debug vm_cluster_resource_pool
-#   ansible.builtin.debug:
-#     var: vm_cluster_resource_pool
-
-
-# BEGIN: WORKS BUT NOT WITH TEMPLATES
-# - name: Create a VM
-#   vmware.vmware_rest.vcenter_vm:
-#     vcenter_hostname: "{{ vcenter_hostname }}"
-#     vcenter_username: "{{ vcenter_username }}"
-#     vcenter_password: "{{ vcenter_password }}"
-#     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
-#     placement:
-#       cluster: "{{ create_vsphere_vm_cluster }}"
-#       datastore: "{{ create_vsphere_vm_datastore }}"
-#       folder: "{{ create_vsphere_vm_folder }}"
-#       resource_pool: "{{ create_vsphere_vm_cluster_resource_pool }}"
-#     name: "{{ create_vsphere_vm_name }}"
-#     guest_OS: "{{ create_vsphere_vm_guest_os }}"
-#     hardware_version: "{{ create_vsphere_vm_hardware_version }}"
-#     memory:
-#       hot_add_enabled: "{{ create_vsphere_vm_memory_hot_add_enabled }}"
-#       size_MiB: "{{ create_vsphere_vm_memory_size_mib }}"
-#   register: _result
-
-# - name: Debug _result
-#   ansible.builtin.debug:
-#     var: _result
-#     verbosity: 2
-# END: WORKS BUT NOT WITH TEMPLATES

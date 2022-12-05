@@ -7,27 +7,31 @@
     vcenter_username: "{{ vcenter_username }}"
     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
     library_id: '{{ create_vsphere_content_library_id }}'
-  register: _create_vsphere_vm_library_item_list
+  register: _cv_vm_lib_item_list
 
 - name: Debug vsphere library item list
   ansible.builtin.debug:
-    var: _create_vsphere_vm_library_item_list
+    var: _cv_vm_lib_item_list
     verbosity: 2
 
 - name: Convert to local library item list to dictionary
   ansible.builtin.set_fact:
-    _create_vsphere_vm_library_item_dict: "{{ _create_vsphere_vm_library_item_list.value | items2dict(key_name='name', value_name='id') }}"
+    _cv_vm_lib_item_dict: >
+      "{{ _cv_vm_lib_item_list.value |
+      items2dict(key_name='name', value_name='id') }}"
 
 - name: Debug _create_vsphere_all_local_content_libraries_dict
   ansible.builtin.debug:
-    var: _create_vsphere_vm_library_item_dict
+    var: _cv_vm_lib_item_dict
     verbosity: 2
 
-# Note for the future ovf_library_item_id: '{{ (result.value|selectattr("name", "equalto", "my_vm")|first).id }}'
+# Note for the future ovf_library_item_id: >
+# '{{ (result.value|selectattr("name", "equalto", "my_vm")|first).id }}'
 
 - name: Set library id value
   ansible.builtin.set_fact:
-    create_vsphere_vm_content_library_item_id: "{{ _create_vsphere_vm_library_item_dict[create_vsphere_vm_template] }}"
+    create_vsphere_vm_content_library_item_id: >
+      "{{ _cv_vm_lib_item_dict[create_vsphere_vm_template] }}"
 
 - name: Debug create_vsphere_vm_content_library_item_id
   ansible.builtin.debug:
@@ -42,16 +46,16 @@
     vcenter_validate_certs: "{{ vcenter_validate_certs }}"
     library_id: '{{ create_vsphere_content_library_id }}'
     library_item_id: "{{ create_vsphere_vm_content_library_item_id }}"
-  register: _create_vsphere_vm_library_item_details
+  register: _cv_vm_lib_item_details
 
 - name: Debug library item id details
   ansible.builtin.debug:
-    var: _create_vsphere_vm_library_item_details
+    var: _cv_vm_lib_item_details
     verbosity: 2
 
 - name: Set library id value
   ansible.builtin.set_fact:
-    create_vsphere_vm_content_library_item: "{{ _create_vsphere_vm_library_item_details }}"
+    create_vsphere_vm_content_library_item: "{{ _cv_vm_lib_item_details }}"
 
 
 # # vmware.vmware_rest.vcenter_vm_info:
@@ -75,7 +79,8 @@
 #     that:
 #       - template_vm.value | length > 0
 #     fail_msg: "Template VM '{{ vcenter_config_template }}' not found"
-#     success_msg: "Template VM '{{ vcenter_config_template }}' information retrieved"
+#     success_msg: >
+#        "Template VM '{{ vcenter_config_template }}' information retrieved"
 
 # - name: List VM templates
 #   vmware.vmware_rest.vcenter_vmtemplate_libraryitems_info:

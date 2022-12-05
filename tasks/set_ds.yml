@@ -30,7 +30,8 @@
 
 - name: Set Cluster fact vm_datastore
   ansible.builtin.set_fact:
-    create_vsphere_vm_datastore: "{{ _create_vsphere_vm_my_datastore.value[0].datastore }}"
+    create_vsphere_vm_datastore: >
+      "{{ _create_vsphere_vm_my_datastore.value[0].datastore }}"
 
 - name: Debug fact set in Datastore gathering
   ansible.builtin.debug:

@@ -3,37 +3,53 @@
 
 # vSphere Environment Setup
 create_vsphere_vm_datacenter: "Homelab DC"
+
+# Cluster to create VM on
 create_vsphere_vm_cluster: Gen2
+
+# Datastore to create VM on
 create_vsphere_vm_datastore: '2TB_SSD_WDRed'
-create_vsphere_vm_folder: "LabVMs"
+
+# Folder to create the VM in (Optional)
+# create_vsphere_vm_folder: "LabVMs"
+
+# Name of the content library containing the template
 create_vsphere_vm_library: 'golden_images_library'
+
+# Whether to validate TLS certs
 vcenter_validate_certs: false
 
-# Virtual Machine Settings
+# Name of the VM to create
 create_vsphere_vm_name: TESTVM
-create_vsphere_vm_guest_os: RHEL_8_64
-create_vsphere_vm_hardware_version: "VMX_15"
-create_vsphere_vm_memory_hot_add_enabled: true
+
+# Action to apply against VMware API
+# NOTE: The vmware_rest module is not idempotent
+# use 'deploy' to create
+# use 'present' after creation
+create_vsphere_vm_state: deploy
+
+# Source template name to use for deployment
+create_vsphere_vm_template: 'rhel8-base'
+
+# Number of MB of RAM to assign to VM
 create_vsphere_vm_memory_size_mib: '1024'
+
+# Number of cores to assign to VM
 create_vsphere_vm_cpu_cores: 1
+
+# Attempts to start the VM after creation
 create_vsphere_vm_start_vm: true
 
-# Ansible Settings
-create_vsphere_vm_debug: false
+# Instructs the role to use an ova/ovf files rather than a template
 create_vsphere_vm_require_template: false
 
-# Unused Variables
-create_vsphere_vm_state: deploy
-create_vsphere_vm_create_from_template: true
-create_vsphere_vm_template: 'rhel8-base'
-create_vsphere_vm_custom_spec_name: "RHEL8"
-vm_vars: |-
-  - name: aap-controller-test
-    cpu: 2
-    mem: 8
-  - name: aap-hub-test
-    cpu: 2
-    mem: 8
-  - name: aap-db-test
-    cpu: 2
-    mem: 8
+# Variables not currently used below
+
+# Enable hot add feature to VM (Not used)
+# create_vsphere_vm_memory_hot_add_enabled: true
+
+# VM hardware version to use for VM (Not used)
+# create_vsphere_vm_hardware_version: "VMX_15"
+
+# VM Guest OS type (Not used)
+# create_vsphere_vm_guest_os: RHEL_8_64

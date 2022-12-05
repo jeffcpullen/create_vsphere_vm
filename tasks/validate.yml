@@ -11,12 +11,14 @@
   community.general.python_requirements_info:
     dependencies:
       - aiohttp>=3.8
-  register: _create_vsphere_python_libraries_available
-  failed_when:
-    - ( _create_vsphere_python_libraries_available.not_found is defined and _create_vsphere_python_libraries_available.not_found|length > 0 )
-      or (_create_vsphere_python_libraries_available.mismatched is defined and _create_vsphere_python_libraries_available.mismatched|length > 0)
+  register: _cv_pylib_available
+  failed_when: >
+    ( _cv_pylib_available.not_found is defined and
+    _cv_pylib_available.not_found|length > 0 ) or
+    (_cv_pylib_available.mismatched is defined and
+    _cv_pylib_available.mismatched|length > 0)
 
 - name: Debug python libraries
   ansible.builtin.debug:
-    var: _create_vsphere_python_libraries_available
+    var: _cv_pylib_available
     verbosity: 2

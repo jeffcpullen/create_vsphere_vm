@@ -23,7 +23,8 @@
 
 - name: Set Datacenter fact
   ansible.builtin.set_fact:
-    create_vsphere_vm_datacenter: "{{ _create_vsphere_vm_datacenter.value[0].datacenter }}"
+    create_vsphere_vm_datacenter: >
+      "{{ _create_vsphere_vm_datacenter.value[0].datacenter }}"
 
 - name: Debug fact set in datacenter gathering
   ansible.builtin.debug:
