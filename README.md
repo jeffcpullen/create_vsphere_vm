@@ -42,7 +42,7 @@ collections:
 Example Playbook
 ----------------
 
-Example playbook to create a virtual machine named snaap.lab.homelab.work 
+Example playbook to create a virtual machine named snaap.lab.homelab.work
 with 8Gb of RAM and 2 CPU cores based on the rhel8-base-template
 
 ```yaml
