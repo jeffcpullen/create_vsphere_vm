@@ -1,0 +1,19 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+
+  vars:
+    sample_var: "smaple"
+
+  pre_tasks:
+    # - name: Pretask
+
+  roles:
+    # - role: ns.repo
+    #   when: ansible_os_family == 'RedHat'
+
+  post_tasks:
+    # - name: Post tasks
+    #   command: "ls"
+    #   changed_when: false

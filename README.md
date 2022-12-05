@@ -13,6 +13,9 @@ Role Variables
 
 | Variable | Default | Description |
 | -------------- | --------- | ---------------------------------------------- |
+| vcenter_hostname | unset | REQUIRED - IP or hostname to vsphere instance |
+| vcenter_password | unset | REQUIRED - Password to connect to vsphere instance |
+| vcenter_username | unset | REQUIRED - username to connect to vsphere instance (ie administrator@vsphere.local) |
 | create_vsphere_vm_datacenter | Homelab DC | vSphere Datacenter name |
 | create_vsphere_vm_cluster | Gen2 | Datastore to create VM on |
 | create_vsphere_vm_folder | unset | Folder to create the VM in (Optional) |
