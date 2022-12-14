@@ -1,0 +1,11 @@
+tasks:
+  - name: Install ansible-lint
+    init: pip3 install ansible-lint
+    command: pip3 freeze
+
+vscode:
+  extensions:
+    - esbenp.prettier-vscode
+    - redhat.vscode-yaml
+    - eamodio.gitlens
+    - redhat.ansible
